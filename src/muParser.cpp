@@ -145,7 +145,7 @@ namespace mu
 			DefineFun(_T("abs"), MathImpl<value_type>::Abs);
 			// Functions with variable number of arguments
 			DefineFun(_T("sum"), MathImpl<value_type>::Sum);
-			DefineFun(_T("avg"), MathImpl<value_type>::Avg);
+			DefineFun(_T("avrg"), MathImpl<value_type>::Avg);
 			DefineFun(_T("min"), MathImpl<value_type>::Min);
 			DefineFun(_T("max"), MathImpl<value_type>::Max);
 		}
