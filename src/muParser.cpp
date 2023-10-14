@@ -45,6 +45,17 @@ using namespace std;
 /** \brief Namespace for mathematical applications. */
 namespace mu
 {
+	#if USE_STATIC_PARSER == 0
+	funmap_type  ParserBase::m_FunDef;       
+	funmap_type  ParserBase::m_PostOprtDef;  
+	funmap_type  ParserBase::m_InfixOprtDef; 
+	funmap_type  ParserBase::m_OprtDef;      
+	valmap_type  ParserBase::m_ConstDef;       		
+	strmap_type  ParserBase::m_StrVarDef;      		
+	string_type  ParserBase::m_sNameChars;      	
+	string_type  ParserBase::m_sOprtChars;      	
+	string_type  ParserBase::m_sInfixOprtChars; 	
+	#endif
 	//---------------------------------------------------------------------------
 	/** \brief Default value recognition callback.
 		\param [in] a_szExpr Pointer to the expression
@@ -145,7 +156,7 @@ namespace mu
 			DefineFun(_T("abs"), MathImpl<value_type>::Abs);
 			// Functions with variable number of arguments
 			DefineFun(_T("sum"), MathImpl<value_type>::Sum);
-			DefineFun(_T("avg"), MathImpl<value_type>::Avg);
+			DefineFun(_T("avrg"), MathImpl<value_type>::Avg);
 			DefineFun(_T("min"), MathImpl<value_type>::Min);
 			DefineFun(_T("max"), MathImpl<value_type>::Max);
 		}

@@ -36,6 +36,17 @@
 
 #include "muParserFixes.h"
 
+#ifndef GLOBAL_PARSER
+#define STATIC_PARSER static
+#endif
+
+#ifdef STATIC_PARSER
+#define USE_STATIC_PARSER 0
+#else
+#define USE_STATIC_PARSER 1
+#define STATIC_PARSER
+#endif
+
 /** \file
 	\brief This file contains standard definitions used by the parser.
 */
@@ -45,7 +56,7 @@
   This datatype must be a built in value type. You can not use custom classes.
   It should be working with all types except "int"!
 */
-#define MUP_BASETYPE double
+#define MUP_BASETYPE float
 
 /** \brief Activate this option in order to compile with OpenMP support.
 

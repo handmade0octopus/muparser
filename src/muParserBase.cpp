@@ -92,19 +92,21 @@ namespace mu
 		, m_vRPN()
 		, m_vStringBuf()
 		, m_pTokenReader()
+		, m_bBuiltInOp(true)
+		, m_VarDef()
+		, m_vStackBuffer()
+		, m_nFinalResultIdx(0)	
+		#if USE_STATIC_PARSER
 		, m_FunDef()
 		, m_PostOprtDef()
 		, m_InfixOprtDef()
 		, m_OprtDef()
 		, m_ConstDef()
 		, m_StrVarDef()
-		, m_VarDef()
-		, m_bBuiltInOp(true)
 		, m_sNameChars()
 		, m_sOprtChars()
 		, m_sInfixOprtChars()
-		, m_vStackBuffer()
-		, m_nFinalResultIdx(0)
+		#endif
 	{
 		InitTokenReader();
 	}
@@ -120,17 +122,19 @@ namespace mu
 		, m_vRPN()
 		, m_vStringBuf()
 		, m_pTokenReader()
+		, m_bBuiltInOp(true)
+		, m_VarDef()
+		#if USE_STATIC_PARSER
 		, m_FunDef()
 		, m_PostOprtDef()
 		, m_InfixOprtDef()
 		, m_OprtDef()
 		, m_ConstDef()
 		, m_StrVarDef()
-		, m_VarDef()
-		, m_bBuiltInOp(true)
 		, m_sNameChars()
 		, m_sOprtChars()
 		, m_sInfixOprtChars()
+		#endif
 	{
 		m_pTokenReader.reset(new token_reader_type(this));
 		Assign(a_Parser);

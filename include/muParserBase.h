@@ -286,24 +286,25 @@ namespace mu
 		*/
 		mutable ParseFunction  m_pParseFormula;
 		mutable ParserByteCode m_vRPN;        ///< The Bytecode class.
-		mutable stringbuf_type  m_vStringBuf; ///< String buffer, used for storing string function arguments
+		mutable stringbuf_type m_vStringBuf; ///< String buffer, used for storing string function arguments
 		stringbuf_type  m_vStringVarBuf;
 
 		std::unique_ptr<token_reader_type> m_pTokenReader; ///< Managed pointer to the token reader object.
 
-		funmap_type  m_FunDef;         ///< Map of function names and pointers.
-		funmap_type  m_PostOprtDef;    ///< Postfix operator callbacks
-		funmap_type  m_InfixOprtDef;   ///< unary infix operator.
-		funmap_type  m_OprtDef;        ///< Binary operator callbacks
-		valmap_type  m_ConstDef;       ///< user constants.
-		strmap_type  m_StrVarDef;      ///< user defined string constants
-		varmap_type  m_VarDef;         ///< user defind variables.
+		bool m_bBuiltInOp;             				 ///< Flag that can be used for switching built in operators on and off
 
-		bool m_bBuiltInOp;             ///< Flag that can be used for switching built in operators on and off
+		
+		STATIC_PARSER funmap_type  m_FunDef;         	///< Map of function names and pointers.
+		STATIC_PARSER funmap_type  m_PostOprtDef;    	///< Postfix operator callbacks
+		STATIC_PARSER funmap_type  m_InfixOprtDef;   	///< unary infix operator.
+		STATIC_PARSER funmap_type  m_OprtDef;        	///< Binary operator callbacks
+		STATIC_PARSER valmap_type  m_ConstDef;       	///< user constants.
+		STATIC_PARSER strmap_type  m_StrVarDef;      	///< user defined string constants
+		STATIC_PARSER string_type  m_sNameChars;      	///< Charset for names
+		STATIC_PARSER string_type  m_sOprtChars;      	///< Charset for postfix/ binary operator tokens
+		STATIC_PARSER string_type  m_sInfixOprtChars; 	///< Charset for infix operator tokens
 
-		string_type m_sNameChars;      ///< Charset for names
-		string_type m_sOprtChars;      ///< Charset for postfix/ binary operator tokens
-		string_type m_sInfixOprtChars; ///< Charset for infix operator tokens
+		varmap_type  m_VarDef;         		///< user defind variables.
 
 		// items merely used for caching state information
 		mutable valbuf_type m_vStackBuffer; ///< This is merely a buffer used for the stack in the cmd parsing routine
