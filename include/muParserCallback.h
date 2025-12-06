@@ -113,6 +113,7 @@ namespace mu
 		ParserCallback(bulkfun_userdata_type10 a_pFun, void* a_pUserData, bool a_bAllowOpti);
 
 		ParserCallback(multfun_userdata_type a_pFun, void* a_pUserData, bool a_bAllowOpti);
+		ParserCallback(multfun_strfun_type a_pFun, const char_type* a_pString, bool a_bAllowOpti);
 
 		ParserCallback(strfun_userdata_type1 a_pFun, void* a_pUserData, bool a_bAllowOpti);
 		ParserCallback(strfun_userdata_type2 a_pFun, void* a_pUserData, bool a_bAllowOpti);

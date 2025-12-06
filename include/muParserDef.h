@@ -462,6 +462,9 @@ namespace mu
 	/** \brief Callback type with user data (not null) used for functions and a variable argument list. */
 	typedef value_type(*multfun_userdata_type)(void*, const value_type*, int);
 
+	/** \brief Callback type for functions taking a string as an argument used for functions and a variable argument list. */
+	typedef value_type(*multfun_strfun_type)(const char_type*, const value_type*, int);
+
 	/** \brief Callback type used for functions taking a string as an argument. */
 	typedef value_type(*strfun_type1)(const char_type*);
 

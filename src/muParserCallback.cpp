@@ -50,6 +50,12 @@ namespace mu
 		void* 	pUserData;
 	};
 
+	struct CbWithString
+	{
+		void*		pFun;
+		const char* pString;
+	};
+
 
 	ParserCallback::ParserCallback(fun_type0 a_pFun, bool a_bAllowOpti)
 		:m_pFun((void*)a_pFun)
@@ -580,6 +586,16 @@ namespace mu
 
 	ParserCallback::ParserCallback(multfun_userdata_type a_pFun, void* a_pUserData, bool a_bAllowOpti)
 		:m_pFun(new CbWithUserData{reinterpret_cast<void*>(a_pFun), a_pUserData})
+		, m_iArgc(CALLBACK_INTERNAL_VAR_ARGS | CALLBACK_INTERNAL_WITH_USER_DATA)
+		, m_iPri(-1)
+		, m_eOprtAsct(oaNONE)
+		, m_iCode(cmFUNC)
+		, m_iType(tpDBL)
+		, m_bAllowOpti(a_bAllowOpti)
+	{}
+
+	ParserCallback::ParserCallback(multfun_strfun_type a_pFun, const char_type* a_pString, bool a_bAllowOpti)
+		:m_pFun(new CbWithString{reinterpret_cast<void*>(a_pFun), a_pString})
 		, m_iArgc(CALLBACK_INTERNAL_VAR_ARGS | CALLBACK_INTERNAL_WITH_USER_DATA)
 		, m_iPri(-1)
 		, m_eOprtAsct(oaNONE)

@@ -111,6 +111,7 @@ namespace mu
 			}
 		}
 
+
 		template <std::size_t NbParams, typename... Args>
 		value_type call_strfun(Args&&... args) const
 		{
