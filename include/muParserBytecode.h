@@ -162,6 +162,15 @@ namespace mu
 			return std::make_tuple(m_expr, m_stringBuffer);
 		}
 
+		/** \brief Drop the stored expression text copy (keeps string buffer).
+		    The expression text is only used for token-reader formula/error
+		    messages after SetByteCode; bytecode evaluation never parses it.
+		    The canonical expression string lives in the owning component. */
+		void ClearStoredExpr()
+		{
+			m_expr.clear();
+		}
+
 		void AsciiDump() const;
 	};
 
