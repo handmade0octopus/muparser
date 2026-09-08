@@ -275,7 +275,8 @@ namespace mu
 		value_type ParseString() const;
 		value_type ParseCmdCode() const;
 		value_type ParseCmdCodeShort() const;
-		value_type ParseCmdCodeBulk(int nOffset, int nThreadID, const ParserByteCode* byteCode = nullptr) const;
+		value_type ParseCmdCodeBulk(int nOffset, int nThreadID) const;
+		value_type ParseCmdCodeBulkImpl(int nOffset, int nThreadID, const ParserByteCode* byteCode) const;
 
 		void  CheckName(const string_type& a_strName, const string_type& a_CharSet) const;
 		void  CheckOprt(const string_type& a_sName, const ParserCallback& a_Callback, const string_type& a_szCharSet) const;

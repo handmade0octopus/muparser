@@ -1099,7 +1099,12 @@ namespace mu
 		\param nOffset The offset added to variable addresses (for bulk mode)
 		\param nThreadID OpenMP Thread id of the calling thread
 	*/
-	value_type ParserBase::ParseCmdCodeBulk(int nOffset, int nThreadID, const ParserByteCode* byteCode) const
+	value_type ParserBase::ParseCmdCodeBulk(int nOffset, int nThreadID) const
+	{
+		return ParseCmdCodeBulkImpl(nOffset, nThreadID, nullptr);
+	}
+
+	value_type ParserBase::ParseCmdCodeBulkImpl(int nOffset, int nThreadID, const ParserByteCode* byteCode) const
 	{
 		assert(nThreadID <= s_MaxNumOpenMPThreads);
 		const ParserByteCode& code = byteCode ? *byteCode : m_vRPN;
@@ -1846,7 +1851,7 @@ namespace mu
 	{
 		if (!byteCode.GetSize() || m_vStackBuffer.size() < byteCode.GetMaxStackSize() * s_MaxNumOpenMPThreads)
 			throw ParserError(ecINTERNAL_ERROR);
-		return ParseCmdCodeBulk(0, 0, &byteCode);
+		return ParseCmdCodeBulkImpl(0, 0, &byteCode);
 	}
 
 	//------------------------------------------------------------------------------
