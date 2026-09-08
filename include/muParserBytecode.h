@@ -113,6 +113,7 @@ namespace mu
 		rpn_type  m_vRPN;
 
 		bool m_bEnableOptimizer;
+		int m_iResultIndex = 1;
 
 		void ConstantFolding(ECmdCode a_Oprt);
 
@@ -137,6 +138,9 @@ namespace mu
 		void Finalize();
 		void clear();
 		std::size_t GetMaxStackSize() const;
+		int GetResultIndex() const { return m_iResultIndex; }
+		void SetResultIndex(int index) { m_iResultIndex = index; }
+		const stringbuf_type& GetStringBuffer() const { return m_stringBuffer; }
 
 		std::size_t GetSize() const
 		{

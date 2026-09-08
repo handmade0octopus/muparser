@@ -278,6 +278,9 @@ namespace mu
 	void ParserBase::SetByteCode(const ParserByteCode& a_ByteCode)
 	{
 		m_vRPN = a_ByteCode;
+		m_nFinalResultIdx = a_ByteCode.GetResultIndex();
+		if (m_vStackBuffer.size() < a_ByteCode.GetMaxStackSize() * s_MaxNumOpenMPThreads)
+			m_vStackBuffer.resize(a_ByteCode.GetMaxStackSize() * s_MaxNumOpenMPThreads);
 
 		// restore expression environment
 		string_type expr;
@@ -1096,16 +1099,18 @@ namespace mu
 		\param nOffset The offset added to variable addresses (for bulk mode)
 		\param nThreadID OpenMP Thread id of the calling thread
 	*/
-	value_type ParserBase::ParseCmdCodeBulk(int nOffset, int nThreadID) const
+	value_type ParserBase::ParseCmdCodeBulk(int nOffset, int nThreadID, const ParserByteCode* byteCode) const
 	{
 		assert(nThreadID <= s_MaxNumOpenMPThreads);
+		const ParserByteCode& code = byteCode ? *byteCode : m_vRPN;
+		const stringbuf_type& strings = byteCode ? byteCode->GetStringBuffer() : m_vStringBuf;
 
 		// Note: The check for nOffset==0 and nThreadID here is not necessary but 
 		//       brings a minor performance gain when not in bulk mode.
 		value_type *stack = ((nOffset == 0) && (nThreadID == 0)) ? &m_vStackBuffer[0] : &m_vStackBuffer[nThreadID * (m_vStackBuffer.size() / s_MaxNumOpenMPThreads)];
 		value_type buf;
 		int sidx(0);
-		for (const SToken* pTok = m_vRPN.GetBase(); pTok->Cmd != cmEND; ++pTok)
+		for (const SToken* pTok = code.GetBase(); pTok->Cmd != cmEND; ++pTok)
 		{
 			switch (pTok->Cmd)
 			{
@@ -1223,17 +1228,17 @@ namespace mu
 
 				// The index of the string argument in the string table
 				int iIdxStack = pTok->Fun.idx;
-				if (iIdxStack < 0 || iIdxStack >= (int)m_vStringBuf.size())
+				if (iIdxStack < 0 || iIdxStack >= (int)strings.size())
 					Error(ecINTERNAL_ERROR, m_pTokenReader->GetPos());
 
 				switch (pTok->Fun.argc)  // switch according to argument count
 				{
-				case 0: stack[sidx] = pTok->Fun.cb.call_strfun<1>(m_vStringBuf[iIdxStack].c_str()); continue;
-				case 1: stack[sidx] = pTok->Fun.cb.call_strfun<2>(m_vStringBuf[iIdxStack].c_str(), stack[sidx]); continue;
-				case 2: stack[sidx] = pTok->Fun.cb.call_strfun<3>(m_vStringBuf[iIdxStack].c_str(), stack[sidx], stack[sidx + 1]); continue;
-				case 3: stack[sidx] = pTok->Fun.cb.call_strfun<4>(m_vStringBuf[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2]); continue;
-				case 4: stack[sidx] = pTok->Fun.cb.call_strfun<5>(m_vStringBuf[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3]); continue;
-				case 5: stack[sidx] = pTok->Fun.cb.call_strfun<6>(m_vStringBuf[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3], stack[sidx + 4]); continue;
+				case 0: stack[sidx] = pTok->Fun.cb.call_strfun<1>(strings[iIdxStack].c_str()); continue;
+				case 1: stack[sidx] = pTok->Fun.cb.call_strfun<2>(strings[iIdxStack].c_str(), stack[sidx]); continue;
+				case 2: stack[sidx] = pTok->Fun.cb.call_strfun<3>(strings[iIdxStack].c_str(), stack[sidx], stack[sidx + 1]); continue;
+				case 3: stack[sidx] = pTok->Fun.cb.call_strfun<4>(strings[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2]); continue;
+				case 4: stack[sidx] = pTok->Fun.cb.call_strfun<5>(strings[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3]); continue;
+				case 5: stack[sidx] = pTok->Fun.cb.call_strfun<6>(strings[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3], stack[sidx + 4]); continue;
 				}
 
 				continue;
@@ -1267,7 +1272,7 @@ namespace mu
 			} // switch CmdCode
 		} // for all bytecode tokens
 
-		return stack[m_nFinalResultIdx];
+		return stack[byteCode ? byteCode->GetResultIndex() : m_nFinalResultIdx];
 	}
 
 	//---------------------------------------------------------------------------
@@ -1526,7 +1531,10 @@ namespace mu
 			stVal.pop();
 		}
 
-		m_vStackBuffer.resize(m_vRPN.GetMaxStackSize() * s_MaxNumOpenMPThreads);
+		m_vRPN.SetResultIndex(m_nFinalResultIdx);
+		// Saved expressions share this workspace; compiling a smaller one must not shrink it.
+		if (m_vStackBuffer.size() < m_vRPN.GetMaxStackSize() * s_MaxNumOpenMPThreads)
+			m_vStackBuffer.resize(m_vRPN.GetMaxStackSize() * s_MaxNumOpenMPThreads);
 	}
 
 	//---------------------------------------------------------------------------
@@ -1832,6 +1840,13 @@ namespace mu
 	value_type ParserBase::Eval() const
 	{
 		return (this->*m_pParseFormula)();
+	}
+
+	value_type ParserBase::EvalByteCode(const ParserByteCode& byteCode) const
+	{
+		if (!byteCode.GetSize() || m_vStackBuffer.size() < byteCode.GetMaxStackSize() * s_MaxNumOpenMPThreads)
+			throw ParserError(ecINTERNAL_ERROR);
+		return ParseCmdCodeBulk(0, 0, &byteCode);
 	}
 
 	//------------------------------------------------------------------------------

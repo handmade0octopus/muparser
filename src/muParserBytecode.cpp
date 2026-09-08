@@ -100,6 +100,7 @@ namespace mu
 		m_vRPN = a_ByteCode.m_vRPN;
 		m_iMaxStackSize = a_ByteCode.m_iMaxStackSize;
 		m_bEnableOptimizer = a_ByteCode.m_bEnableOptimizer;
+		m_iResultIndex = a_ByteCode.m_iResultIndex;
 		
 		m_stringBuffer = a_ByteCode.m_stringBuffer;
 		m_expr = a_ByteCode.m_expr;
