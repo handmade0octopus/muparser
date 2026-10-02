@@ -120,6 +120,7 @@ namespace mu
 	public:
 
 		ParserByteCode();
+		explicit ParserByteCode(unsigned reserveCount);
 		ParserByteCode(const ParserByteCode& a_ByteCode);
 		ParserByteCode& operator=(const ParserByteCode& a_ByteCode);
 		void Assign(const ParserByteCode& a_ByteCode);

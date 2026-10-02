@@ -119,6 +119,11 @@ namespace mu
 		    No strings, parser workspace, allocation or locking. Not a bytecode loader. */
 		static value_type EvalNumeric(const SToken* tokens, std::size_t count,
 			value_type* stack, std::size_t stackSize, std::size_t requiredStack, int resultIndex = 1);
+		/** Trusted compiler-produced program with caller-owned strings and workspace.
+		    Ordinary IEEE/function semantics; native callbacks retain their own costs. */
+		static value_type EvalProgram(const SToken* tokens, std::size_t count,
+			const char_type* const* strings, std::size_t stringCount, value_type* stack,
+			std::size_t stackSize, std::size_t requiredStack, int resultIndex = 1);
 		value_type* Eval(int& nStackSize) const;
 		void Eval(value_type* results, int nBulkSize);
 
@@ -284,6 +289,9 @@ namespace mu
 		value_type ParseCmdCodeBulk(int nOffset, int nThreadID) const;
 		value_type ParseCmdCodeBulkImpl(int nOffset, int nThreadID, const ParserByteCode* byteCode) const;
 		static value_type ExecuteCode(const SToken* tokens, const stringbuf_type* strings,
+			value_type* stack, int resultIndex, int nOffset, int nThreadID);
+		static value_type ExecuteCodeWithStrings(const SToken* tokens, const stringbuf_type* strings,
+			const char_type* const* rawStrings, std::size_t stringCount, bool numericOnly,
 			value_type* stack, int resultIndex, int nOffset, int nThreadID);
 
 		void  CheckName(const string_type& a_strName, const string_type& a_CharSet) const;

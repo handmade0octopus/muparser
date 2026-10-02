@@ -49,6 +49,9 @@ namespace mu
 {
 	/** \brief Bytecode default constructor. */
 	ParserByteCode::ParserByteCode()
+		: ParserByteCode(50) {}
+
+	ParserByteCode::ParserByteCode(unsigned reserveCount)
 		: m_iStackPos(0)
  		, m_stringBuffer()
 		, m_expr()
@@ -56,7 +59,7 @@ namespace mu
 		, m_vRPN()
 		, m_bEnableOptimizer(true)
 	{
-		m_vRPN.reserve(50);
+		if (reserveCount) m_vRPN.reserve(reserveCount);
 	}
 
 

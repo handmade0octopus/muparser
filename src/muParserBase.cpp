@@ -1120,6 +1120,14 @@ namespace mu
 	value_type ParserBase::ExecuteCode(const SToken* tokens, const stringbuf_type* strings,
 		value_type* stack, int resultIndex, int nOffset, int nThreadID)
 	{
+		return ExecuteCodeWithStrings(tokens, strings, nullptr, 0, !strings,
+			stack, resultIndex, nOffset, nThreadID);
+	}
+
+	value_type ParserBase::ExecuteCodeWithStrings(const SToken* tokens, const stringbuf_type* strings,
+		const char_type* const* rawStrings, std::size_t stringCount, bool numericOnly,
+		value_type* stack, int resultIndex, int nOffset, int nThreadID)
+	{
 		value_type buf;
 		int sidx(0);
 		for (const SToken* pTok = tokens; pTok->Cmd != cmEND; ++pTok)
@@ -1127,7 +1135,7 @@ namespace mu
 			// The trusted numeric-only path fail-closes a non-finite intermediate
 			// before a comparison/conditional can turn it back into a valid scalar.
 			// Ordinary parser evaluation keeps its existing IEEE behavior.
-			if (!strings && sidx > 0 && !std::isfinite(stack[sidx]))
+			if (numericOnly && sidx > 0 && !std::isfinite(stack[sidx]))
 				return std::numeric_limits<value_type>::quiet_NaN();
 			switch (pTok->Cmd)
 			{
@@ -1245,17 +1253,18 @@ namespace mu
 
 				// The index of the string argument in the string table
 				int iIdxStack = pTok->Fun.idx;
-				if (!strings || iIdxStack < 0 || iIdxStack >= (int)strings->size())
+				if (iIdxStack < 0 || (std::size_t)iIdxStack >= (strings ? strings->size() : stringCount))
 					throw ParserError(ecINTERNAL_ERROR);
+				const char_type* text = strings ? (*strings)[iIdxStack].c_str() : rawStrings[iIdxStack];
 
 				switch (pTok->Fun.argc)  // switch according to argument count
 				{
-				case 0: stack[sidx] = pTok->Fun.cb.call_strfun<1>((*strings)[iIdxStack].c_str()); continue;
-				case 1: stack[sidx] = pTok->Fun.cb.call_strfun<2>((*strings)[iIdxStack].c_str(), stack[sidx]); continue;
-				case 2: stack[sidx] = pTok->Fun.cb.call_strfun<3>((*strings)[iIdxStack].c_str(), stack[sidx], stack[sidx + 1]); continue;
-				case 3: stack[sidx] = pTok->Fun.cb.call_strfun<4>((*strings)[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2]); continue;
-				case 4: stack[sidx] = pTok->Fun.cb.call_strfun<5>((*strings)[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3]); continue;
-				case 5: stack[sidx] = pTok->Fun.cb.call_strfun<6>((*strings)[iIdxStack].c_str(), stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3], stack[sidx + 4]); continue;
+				case 0: stack[sidx] = pTok->Fun.cb.call_strfun<1>(text); continue;
+				case 1: stack[sidx] = pTok->Fun.cb.call_strfun<2>(text, stack[sidx]); continue;
+				case 2: stack[sidx] = pTok->Fun.cb.call_strfun<3>(text, stack[sidx], stack[sidx + 1]); continue;
+				case 3: stack[sidx] = pTok->Fun.cb.call_strfun<4>(text, stack[sidx], stack[sidx + 1], stack[sidx + 2]); continue;
+				case 4: stack[sidx] = pTok->Fun.cb.call_strfun<5>(text, stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3]); continue;
+				case 5: stack[sidx] = pTok->Fun.cb.call_strfun<6>(text, stack[sidx], stack[sidx + 1], stack[sidx + 2], stack[sidx + 3], stack[sidx + 4]); continue;
 				}
 
 				continue;
@@ -1890,6 +1899,18 @@ namespace mu
 			requiredStack > stackSize || resultIndex < 1 || (std::size_t)resultIndex >= requiredStack)
 			throw ParserError(ecINTERNAL_ERROR);
 		return ExecuteCode(tokens, nullptr, stack, resultIndex, 0, 0);
+	}
+
+	value_type ParserBase::EvalProgram(const SToken* tokens, std::size_t count,
+		const char_type* const* strings, std::size_t stringCount, value_type* stack,
+		std::size_t stackSize, std::size_t requiredStack, int resultIndex)
+	{
+		if (!tokens || count < 2 || tokens[count - 1].Cmd != cmEND || !stack ||
+			(stringCount && !strings) || requiredStack > stackSize || resultIndex < 1 ||
+			(std::size_t)resultIndex >= requiredStack)
+			throw ParserError(ecINTERNAL_ERROR);
+		return ExecuteCodeWithStrings(tokens, nullptr, strings, stringCount, false,
+			stack, resultIndex, 0, 0);
 	}
 
 	//------------------------------------------------------------------------------
