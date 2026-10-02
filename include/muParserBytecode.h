@@ -134,6 +134,7 @@ namespace mu
 		void AddStrFun(generic_callable_type a_pFun, int a_iArgc, int a_iIdx);
 
 		void EnableOptimizer(bool bStat);
+		bool IsOptimizerEnabled() const { return m_bEnableOptimizer; }
 
 		void Finalize();
 		void clear();

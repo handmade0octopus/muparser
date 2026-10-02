@@ -113,6 +113,12 @@ namespace mu
 		value_type Eval() const;
 		/** Evaluate saved bytecode without copying its environment. Compile on this parser first. */
 		value_type EvalByteCode(const ParserByteCode& byteCode) const;
+		/** Compile without evaluation or numeric callback folding. Parsing hooks still run. */
+		const ParserByteCode& CompileNoOptimize() const;
+		/** Trusted, compiler-produced numeric tokens; caller owns remapped variables/stack.
+		    No strings, parser workspace, allocation or locking. Not a bytecode loader. */
+		static value_type EvalNumeric(const SToken* tokens, std::size_t count,
+			value_type* stack, std::size_t stackSize, std::size_t requiredStack, int resultIndex = 1);
 		value_type* Eval(int& nStackSize) const;
 		void Eval(value_type* results, int nBulkSize);
 
@@ -277,6 +283,8 @@ namespace mu
 		value_type ParseCmdCodeShort() const;
 		value_type ParseCmdCodeBulk(int nOffset, int nThreadID) const;
 		value_type ParseCmdCodeBulkImpl(int nOffset, int nThreadID, const ParserByteCode* byteCode) const;
+		static value_type ExecuteCode(const SToken* tokens, const stringbuf_type* strings,
+			value_type* stack, int resultIndex, int nOffset, int nThreadID);
 
 		void  CheckName(const string_type& a_strName, const string_type& a_CharSet) const;
 		void  CheckOprt(const string_type& a_sName, const ParserCallback& a_Callback, const string_type& a_szCharSet) const;
