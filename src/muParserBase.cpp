@@ -624,6 +624,17 @@ namespace mu
 		ReInit();
 	}
 
+	bool ParserBase::RebindVar(const char_type* name, value_type* value)
+	{
+		if (!name || !value) return false;
+		for (auto& variable : m_VarDef) if (variable.first == name) {
+			variable.second = value;
+			ReInit();
+			return true;
+		}
+		return false;
+	}
+
 	//---------------------------------------------------------------------------
 	/** \brief Add a user defined constant.
 		\param [in] a_sName The name of the constant.
